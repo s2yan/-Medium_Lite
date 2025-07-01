@@ -4,7 +4,21 @@ import { ApiErrorResponse } from '../utils/ApiErrorResponse.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
 import { uploadToCloudinary } from '../utils/cloudinary.js';
 
+const gernerateRefreshAndAccessToken = async function(userId){
+    const user = await User.findById({_id: userId})
 
+    if( !user ){
+        throw new ApiErrorResponse(404, "Invalid email Id")
+    }
+
+    const refreshToken = await user.generateRefreshToken()
+    const accessToken = await user.generateAccessToken()
+
+    user.refreshToken = refreshToken
+    user.save({ validateBeforeSave: false})
+    return { refreshToken, accessToken}
+    
+}
 
 const isPasswordStrong = (password) => {
     //logic for strong password validation
@@ -31,7 +45,7 @@ const isPasswordStrong = (password) => {
         else if( char >= '0' && char <= '9'){
             hasDigit = true
         }
-        else if( char.test(/[^A-Za-z0-9]/)){
+        else if( /[^A-Za-z0-9]/.test(char)){
             hasSpecialChar = true;
         }
     }
@@ -54,10 +68,10 @@ const registerUser = AsyncHandler( async ( req, res ) => {
     //Check whether any user with the same email or username exists in the database
     try{
         const existingUser = await User.findOne({
-            $or: {
-                email: email,
-                username: username
-            }
+            $or: [
+                {email: email},
+                {username: username}
+            ]
         })
         //If not, create a new user.
         if( existingUser ){
@@ -81,16 +95,16 @@ const registerUser = AsyncHandler( async ( req, res ) => {
             profileImage: profileImage
         })
 
-        const dbUser = await User.findById(newUser._id).select("-password - refreshToken");
+        const dbUser = await User.findById(newUser._id).select("-refreshToken");
         if( !dbUser ){
             throw new ApiErrorResponse(500, "Failed to create user");
         }
 
 
         return res
-            .staus(201)
+            .status(201)
             .json(
-                new ApiResponse(201, "User registered successfully", dbUser)
+                new ApiResponse(201, "User registered successfully", {dbUser})
             )
     }catch(error){
         console.log("Error registering user:", error);
@@ -99,4 +113,54 @@ const registerUser = AsyncHandler( async ( req, res ) => {
 
 })
 
-export { registerUser };
+const loginUser = AsyncHandler( async( req, res) =>{
+    const { email, password } = req.body
+
+    if( [email, password].some(field => field === "")){
+        throw new ApiErrorResponse(401, "Both email and password is required for user login")
+    }
+
+    //check if email exists in the database
+    try{
+
+        const user = await User.findOne({
+            email: email
+            })
+
+        if( !user ){
+            throw new ApiErrorResponse(404, "Please enter a valid email Id")
+        }
+
+        //check if password are mathcing
+        const passwordMatched = user.isPasswordMatching(password)
+        if( !passwordMatched ){
+            throw new ApiErrorResponse(401, "Enter a valid password")
+        }
+
+        //generate Refresh and access Token
+        const { refreshToken, accessToken } = await gernerateRefreshAndAccessToken(user._id)
+        const options = {
+            httpOnly: true,
+            secure: true
+        }
+
+        return res
+            .status(201)
+            .cookie("refreshToken", refreshToken, options)
+            .cookie("accessToken", accessToken, options)
+            .json(
+                new ApiResponse(201, "User loggedin successfully", {refreshToken, accessToken})
+            )
+
+    }catch(error){
+        console.log("Error loggin in user: ", error)
+        throw new ApiErrorResponse(500, "Something went wrong while logging in user")
+    }
+
+})
+
+const logoutUser = AsyncHandler( async (req, res) => {
+
+})
+
+export { registerUser, loginUser };

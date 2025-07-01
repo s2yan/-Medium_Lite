@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 
 const userSchema = new Schema(
     {
-        firsname: {
+        firstname: {
             type: String,
             required: true,
             trim: true
@@ -68,19 +68,25 @@ userSchema.pre('save', async function(next){
 
 //TO-DO
 //Add a method to validate the user password with the entered password
+userSchema.methods.isPasswordMatching = async function(userPassword){ 
+    const result = await bcrypt.compare(userPassword, this.password)
+
+    return result
+}
 
 //generate refresh and access tokens with JWT
-const generateRefreshToken = async function(){
+userSchema.methods.generateRefreshToken = async function(){
+   //console.log(process.env.ACCESSTOKEN_SECRET, process.env.REFRESHTOKEN_SECRET)
     const refreshToken =  jwt.sign(
         { id: this._id},
-        process.env.REPRESHTOKEN_SECRET,
+        process.env.REFRESHTOKEN_SECRET,
         {expiresIn: process.env.REFRESHTOKEN_EXPIRES_IN}
     )
 
     return refreshToken;
 }
 
-const generateAccessToken = async function(){
+userSchema.methods.generateAccessToken = async function(){
     const accessToken =  jwt.sign(
         { id: this._id},
         process.env.ACCESSTOKEN_SECRET,
@@ -92,4 +98,4 @@ const generateAccessToken = async function(){
 
 
 const User = mongoose.model('User', userSchema);
-export { User, generateRefreshToken, generateAccessToken };
+export { User };

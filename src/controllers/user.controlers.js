@@ -160,7 +160,34 @@ const loginUser = AsyncHandler( async( req, res) =>{
 })
 
 const logoutUser = AsyncHandler( async (req, res) => {
+    const user = req.user
 
+
+    try{
+
+    
+    if( !user ){
+        throw new ApiErrorResponse(404, "User not found / Invalid accessToken");
+    }
+
+    await User.findByIdAndUpdate({
+        refreshToken: null
+    })
+
+    const options = {
+        httpOnly: true,
+        secure: true
+    }
+
+    return res  
+        .status(201)
+        .clearCookie("refreshToken", options)
+        .clearCookie("accessToken", options)
+        .json(new ApiResponse(201, "User logged out successfully"))
+    }catch(error){
+        console.log(error)
+        throw new ApiErrorResponse(500, "Something went wrong while user logout")
+    }
 })
 
-export { registerUser, loginUser };
+export { registerUser, loginUser, logoutUser };

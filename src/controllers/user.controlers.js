@@ -170,9 +170,13 @@ const logoutUser = AsyncHandler( async (req, res) => {
         throw new ApiErrorResponse(404, "User not found / Invalid accessToken");
     }
 
-    await User.findByIdAndUpdate({
-        refreshToken: null
-    })
+    await User.findByIdAndUpdate(
+        user._id,
+        {
+            $set: { refreshToken: null }
+        }
+    );
+
 
     const options = {
         httpOnly: true,
@@ -185,7 +189,7 @@ const logoutUser = AsyncHandler( async (req, res) => {
         .clearCookie("accessToken", options)
         .json(new ApiResponse(201, "User logged out successfully"))
     }catch(error){
-        console.log(error)
+        console.log("Logout Error : " + error)
         throw new ApiErrorResponse(500, "Something went wrong while user logout")
     }
 })

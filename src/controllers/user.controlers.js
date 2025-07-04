@@ -2,7 +2,8 @@ import { User } from '../models/user.models.js';
 import { AsyncHandler } from '../utils/AsyncHandler.js';
 import { ApiErrorResponse } from '../utils/ApiErrorResponse.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
-import { uploadToCloudinary } from '../utils/cloudinary.js';
+import { uploadToCloudinary, deleteFromCloudinary } from '../utils/cloudinary.js';
+import { upload } from '../middlewares/muter.middlewares.js';
 
 const gernerateRefreshAndAccessToken = async function(userId){
     const user = await User.findById({_id: userId})
@@ -194,4 +195,101 @@ const logoutUser = AsyncHandler( async (req, res) => {
     }
 })
 
-export { registerUser, loginUser, logoutUser };
+const deleteProfileImage = AsyncHandler( async (req, res) => {
+    try{
+       
+        let [ , publicIdWithExtension] = req.user.profileImage.split('upload/')
+        console.log(publicIdWithExtension)
+        let publicId = publicIdWithExtension.split('/')[1].split('.')[0]
+        deleteFromCloudinary(publicId)
+        console.log(publicId)
+
+        return res
+            .status(201)
+            .json(new ApiResponse(201, "Successfull", publicId))
+
+    }catch(error){
+        console.log("Something went wrong while deleting the profile Image", error)
+    }
+})
+
+const updateProfileImage = AsyncHandler( async(req, res) => {
+    const newProfileImagePath = req?.file?.path
+
+    if( !newProfileImagePath ){
+        throw new ApiErrorResponse(404, "New profile image path is reqruired")
+    }
+
+    try{
+
+        const res = uploadToCloudinary(newProfileImagePath)
+
+        const [, publicIdwithExtension ] = req.user.profileImage.split('upload/')
+        const publicId = publicIdwithExtension.split('/')[1].split('.')[0]
+        deleteFromCloudinary(publicId)
+
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            {
+                $set: {
+                    profileImage: res.url
+                }
+            }
+        )
+
+        user.save({ validateBeforeSave: true })
+        
+        return res
+            .status(201)
+            .json(new ApiResponse(201, "ProfileImage updated successfully", res.url))
+
+    }catch(error){
+        console.log(error)
+        throw new ApiErrorResponse(201, "Something went wrong while updaing the profile photo", error)
+    }
+})
+
+const updateProfileDetails = AsyncHandler( async (req, res) =>{
+    const { firstname, email } = req.body
+
+    if( !firstname ){
+        throw new ApiErrorResponse(401, "Firstname is required")
+    }
+
+    if( !email ){
+        throw new ApiErrorResponse(401, "Email is required")
+    }
+
+
+    try{
+
+    
+    const user = await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: {
+                firstname: firstname,
+                email: email
+            }
+        }
+    ) 
+
+    user.save({validateBeforeSave: false})
+    return res  
+        .status(201)
+        .json( new ApiResponse(201, "User details updated successfully"))
+
+    }catch(error){
+        console.log(error)
+        throw new ApiErrorResponse(500, "Something went wrong while updating user details")
+    }
+})
+
+const getUser = AsyncHandler( async( req, res) => {
+    return res
+        .status(201)
+        .json(201, "User fecthed successfully", req.user)
+})
+
+
+export { registerUser, loginUser, logoutUser, deleteProfileImage, updateProfileImage, updateProfileDetails, getUser };

@@ -28,4 +28,16 @@ const uploadToCloudinary = async ( localFilePath ) => {
     }
 }
 
-export { uploadToCloudinary }
+
+const deleteFromCloudinary = async ( pulbic_Id) => {
+    try {
+
+        const res = await cloudinary.uploader.destroy(pulbic_Id)
+        //console.log("Asset deleted successfully, " + res)
+
+    } catch (error) {
+        console.log("Something went wrong while deleting the profile image, " + error)
+    }
+}
+
+export { uploadToCloudinary, deleteFromCloudinary }

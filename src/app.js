@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-
+import cookieParser from 'cookie-parser';
 
 dotenv.config({ path: './src/.env'})
 const app = express();
@@ -12,6 +12,7 @@ app.use(cors({
     credentails: true
 }))
 app.use(express.urlencoded({extended: true}))
+app.use(cookieParser())
 
 app.get("/", (req, res) =>{
     res.send("Welcome to the medium server")

@@ -3,8 +3,8 @@ import { ApiErrorResponse } from '../utils/ApiErrorResponse.js';
 import { ApiResponse} from '../utils/ApiErrorResponse.js';
 import jwt from 'jsonwebtoken';
 
-const jwtVerify = async function(req, res){
-    const accessToken = req.cookies.accessToken
+const jwtVerify = async function(req, res, next){
+    const {accessToken} = req.cookies
 
     if( !accessToken ){
         throw new ApiErrorResponse(401, "Invalid access token");
@@ -15,10 +15,10 @@ const jwtVerify = async function(req, res){
         throw new ApiErrorResponse(500, "Something went wrong while decoding the accesstoken")
     }
 
-
+    try{
     //find a user with decoded token ID
     const user = await User.findById({
-        _id: decodedToken._id
+        _id: decodedToken.id
     })
 
     if( !user ){
@@ -26,5 +26,10 @@ const jwtVerify = async function(req, res){
     }
 
     req.user = user
-
+    next()
+    }
+    catch(error){
+        console.log(error)
+        throw new ApiErrorResponse(500, "Something went wrong while fetching user details from access token")
+    }
 }

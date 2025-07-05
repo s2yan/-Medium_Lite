@@ -20,6 +20,9 @@ app.get("/", (req, res) =>{
 
 //Import routes
 import userRoutes from './routes/user.routes.js';
+import postRoutes from './routes/post.routes.js';
+
 app.use("/api/v1/user", userRoutes);
+app.use('/api/v1/post', postRoutes);
 
 export { app };

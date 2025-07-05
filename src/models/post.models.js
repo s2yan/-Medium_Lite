@@ -15,14 +15,16 @@ const postSchema = new Schema(
             type: Boolean,
             default: false
         },
-        image: {
-            type: String,
+        image: [{
+            type: Schema.Types.ObjectId,
+            ref: 'Image'
             //cloudinary image url
-        },
-        video:{
-            type: String,
+        }],
+        video:[{
+            type: Schema.Types.ObjectId,
+            ref: 'Video'
             //cloudinary video url
-        },
+        }],
         owner:{
             type: Schema.Types.ObjectId,
             ref: 'User',

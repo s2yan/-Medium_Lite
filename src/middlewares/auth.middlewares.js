@@ -3,11 +3,7 @@ import { ApiErrorResponse } from '../utils/ApiErrorResponse.js';
 import jwt from 'jsonwebtoken';
 
 const jwtVerify = async function(req, res, next){
-<<<<<<< HEAD
     const {accessToken} = req.cookies
-=======
-    const  { accessToken } = req.cookies
->>>>>>> d74abb6ce499b46c940d1bc5cea93f7701d3b568
 
     try{
 
@@ -39,30 +35,4 @@ const jwtVerify = async function(req, res, next){
     }
 }
 
-<<<<<<< HEAD
-    const decodedToken = jwt.verify(accessToken, process.env.ACCESSTOKEN_SECRET)
-    if( !decodedToken ){
-        throw new ApiErrorResponse(500, "Something went wrong while decoding the accesstoken")
-    }
-
-    try{
-    //find a user with decoded token ID
-    const user = await User.findById({
-        _id: decodedToken.id
-    })
-
-    if( !user ){
-        return new ApiErrorResponse(404, "No user found with the decoded accesToken Id")
-    }
-
-    req.user = user
-    next()
-    }
-    catch(error){
-        console.log(error)
-        throw new ApiErrorResponse(500, "Something went wrong while fetching user details from access token")
-    }
-}
-=======
 export { jwtVerify }
->>>>>>> d74abb6ce499b46c940d1bc5cea93f7701d3b568

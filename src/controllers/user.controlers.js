@@ -288,7 +288,7 @@ const updateProfileDetails = AsyncHandler( async (req, res) =>{
 const getUser = AsyncHandler( async( req, res) => {
     return res
         .status(201)
-        .json(201, "User fecthed successfully", req.user)
+        .json(new ApiResponse(201, "User fecthed successfully", req.user))
 })
 
 

@@ -31,8 +31,8 @@ const createPost = AsyncHandler(async (req, res) => {
       throw new ApiErrorResponse(401, "Post not created successfully");
     }
 
-    user.posts.push(post);
-    user.save({ validateBeforeSave: false });
+    user.posts.push(post._id);
+    await user.save({ validateBeforeSave: false });
 
     return res
       .status(201)
@@ -41,7 +41,7 @@ const createPost = AsyncHandler(async (req, res) => {
     console.log(error);
     throw new ApiErrorResponse(
       500,
-      "Something went wrong while creating the user",
+      "Something went wrong while creating the post",
     );
   }
 });

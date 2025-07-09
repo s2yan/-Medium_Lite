@@ -2,6 +2,10 @@ import mongoose, { Schema } from 'mongoose';
 
 const commentSchema = new Schema(
     {
+	postId:{
+	    type: Schema.Types.ObjectId,
+	    ref: 'Post'
+	},
         content:{
             type: String,
             required: true,

@@ -111,7 +111,7 @@ const updatePostDetails = AsyncHandler(async (req, res) => {
 
     return res
       .status(201)
-      .json(new ApiErrorResponse(201, "Post udpated successfully", post));
+      .json(new ApiResponse(201, "Post udpated successfully", post));
   } catch (error) {
     console.log(error);
     throw new ApiErrorResponse(

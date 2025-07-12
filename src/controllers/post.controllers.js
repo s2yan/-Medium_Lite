@@ -163,4 +163,5 @@ const deletePost = AsyncHandler(async (req, res) => {
   }
 });
 
+
 export { createPost, getAllUserPosts, deletePost, updatePostDetails };

@@ -21,8 +21,8 @@ app.get("/", (req, res) =>{
 //Import routes
 import userRoutes from './routes/user.routes.js';
 import postRoutes from './routes/post.routes.js';
-import commentRoutes from './route/comment.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
+import commentRoutes from './routes/comment.routes.js';
 
 
 app.use("/api/v1/user", userRoutes);

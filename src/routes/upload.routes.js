@@ -1,6 +1,6 @@
 import Router from 'express';
 import { upload } from '../middlewares/muter.middlewares.js';
-import { uploadPostController } from '../controllers/uplaodPostController.js';
+import { uploadPostController } from '../controllers/uploadPostController.controller.js';
 
 const router = Router()
 router.post('/upload', 

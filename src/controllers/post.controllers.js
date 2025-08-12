@@ -163,5 +163,26 @@ const deletePost = AsyncHandler(async (req, res) => {
   }
 });
 
+//get all posts
 
-export { createPost, getAllUserPosts, deletePost, updatePostDetails };
+const getAllPosts = AsyncHandler( async( req, res ) => {
+    
+    try{
+	const posts = await Post.find( { isPrivate : false })
+	
+	if( !posts || posts.length === 0 ){
+	    throw new ApiErrorResponse(404, "No posts found")
+	}
+
+	return res
+	    .status(200)
+	    .json( new ApiResponse(201, "all posts fetched succesfully", posts))
+
+	}catch(error){
+	    console.log(error)
+	    throw new ApiErrorResponse(500, "Something went wrong while fetching the post details")
+	}
+    
+})
+
+export { createPost, getAllUserPosts, deletePost, updatePostDetails ,getAllPosts};

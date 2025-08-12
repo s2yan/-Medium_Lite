@@ -1,5 +1,5 @@
 import Router from 'express';
-import { registerUser, loginUser, logoutUser, deleteProfileImage, updateProfileDetails, getUser } from '../controllers/user.controlers.js';
+import { registerUser, loginUser, logoutUser, deleteProfileImage, updateProfileDetails, getUser , getAllUser } from '../controllers/user.controlers.js';
 import { upload } from '../middlewares/muter.middlewares.js';
 import { jwtVerify } from '../middlewares/auth.middlewares.js';
 
@@ -12,5 +12,6 @@ router.post('/deleteProfileImage', jwtVerify, deleteProfileImage )
 //ToDo: Add the remaining user routes
 router.post('/updateProfileDetails', jwtVerify, updateProfileDetails)
 router.get('/getUser', jwtVerify, getUser)
+router.get('/getAllUser', getAllUser)
 
 export default router;
